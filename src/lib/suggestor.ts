@@ -88,44 +88,35 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 		}
 	}
 
-	private renderMarkdown(markdown: string, el: HTMLElement): void {
+	private renderMarkdown(
+		markdown: string,
+		el: HTMLElement,
+	): void {
 		const lifecycleComponent = new Component();
-
-		lifecycleComponent.onload = () => {
-			MarkdownRenderer.render(
-				this.app,
-				markdown,
-				el,
-				this.context?.file?.path ?? '',
-				lifecycleComponent,
-			);
-
-			el.style.whiteSpace = 'normal';
-			el.querySelectorAll('ol, ul').forEach((listEl) => {
-				(listEl as HTMLElement).style.paddingLeft = 'var(--size-4-6)';
-			});
-
-      const childEl = el.children[0];
-
-      if (childEl instanceof HTMLElement) {
-        childEl.style.marginTop = '12px';
-        childEl.style.marginBottom = '12px';
-      }
-		};
-
 		lifecycleComponent.load();
+
+		void MarkdownRenderer.render(
+			this.app,
+			markdown,
+			el,
+			this.context?.file?.path ?? '',
+			lifecycleComponent,
+		);
+
+		el.classList.add('inline-cmd-suggestion');
+
 		lifecycleComponent.unload();
 	}
 
 	private renderStandard(value: Suggestion, el: HTMLElement): void {
 		const labelEl = el.createSpan();
 		labelEl.setText(value.label ?? value.cmd);
-		labelEl.style.fontWeight = 'bold';
+		labelEl.classList.add('inline-cmd-suggestion-label');
 
 		if (value.description) {
 			const descEl = el.createSpan();
+			descEl.classList.add('inline-cmd-suggestion-desc');
 			descEl.setText(` ${value.description}`);
-			descEl.style.fontStyle = 'italic';
 		}
 	}
 

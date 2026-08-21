@@ -1,8 +1,27 @@
 /*
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
-
-If your plugin does not need CSS, delete this file.
+Custom CSS from for Inline Commands plugin
 
 */
+
+.inline-cmd-suggestion {
+	white-space: normal;
+}
+
+.inline-cmd-suggestion > * {
+	margin-top: var(--size-4-3);
+	margin-bottom: var(--size-4-3);
+}
+
+.inline-cmd-suggestion > ul,
+.inline-cmd-suggestion > ol {
+	padding-left: var(--size-4-6);
+}
+
+.inline-cmd-suggestion-label {
+	font-weight: bold;
+}
+
+.inline-cmd-suggestion-desc {
+	font-style: italic;
+}

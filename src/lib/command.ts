@@ -10,7 +10,7 @@ export const noop: CmdRunner = (context, app, evt) => context.query;
 
 export const debug: CmdRunner = (context, app, evt) => {
   try {
-    console.log('debugging stuff');
+    // debug things here
   } catch (err) {
     console.error(err);
   }

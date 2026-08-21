@@ -2,7 +2,7 @@
 	"id": "obsidian-inline-cmd",
 	"name": "Inline Commands",
 	"version": "0.1.0",
-	"minAppVersion": "1.0.0",
+	"minAppVersion": "1.5.7",
 	"description": "Plugin for Obsidian to execute commands and insert content inline",
 	"author": "simon-th",
 	"authorUrl": "https://github.com/simon-th",

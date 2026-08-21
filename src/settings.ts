@@ -1,4 +1,4 @@
-import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting } from 'obsidian';
 import InlineCmd from './main.js';
 
 export interface InlineCmdSettings {
@@ -23,7 +23,7 @@ export class InlineCmdSettingsTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Trigger Phrase')
+			.setName('Trigger phrase')
 			.setDesc("Phrase on the editor that will trigger the command suggestions").addText((value) =>
 				value
 					.setValue(this.plugin.settings.triggerPhrase)
@@ -32,5 +32,18 @@ export class InlineCmdSettingsTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}),
 			);
+	}
+
+	getSettingDefinitions() {
+		return [
+			{
+				name: 'Trigger Phrase',
+				desc: 'Phrase that will trigger command suggestions on the editor',
+				control: {
+					type: 'text',
+					key: 'inline-cmd-trigger-phrase',
+				}
+			}
+		]
 	}
 }

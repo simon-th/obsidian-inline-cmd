@@ -1,8 +1,7 @@
 import { App } from 'obsidian';
 import { Suggestion } from '../suggestion.js';
 import { CmdRunner } from '../command.js';
-import { searchBlocks } from '../../util/block.js';
-import { searchAndReadBlocks, searchSuggestions } from './search.js';
+import { searchAndReadBlocks } from './search.js';
 
 const URL_REGEX = /^.*:\/\/.*$/;
 

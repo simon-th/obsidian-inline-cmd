@@ -18,8 +18,6 @@ export const searchAndReadBlocks = async (
 	const blocks = searchBlocks(app, prefix, searchQuery);
 	return await Promise.all(
 		blocks.map(async (blockRef, index) => {
-			const display = blockRef.block.id;
-
 			const markdown =
 				index < limit
 					? await readBlockContents(
