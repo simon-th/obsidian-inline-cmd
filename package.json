@@ -1,7 +1,8 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "obsidian-inline-cmd",
+	"author": "simon-th",
+	"version": "0.1.0",
+	"description": "Plugin for Obsidian to execute commands and insert content inline",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {

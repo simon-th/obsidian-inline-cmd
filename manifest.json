@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
-	"version": "1.0.0",
+	"id": "obsidian-inline-cmd",
+	"name": "Inline Commands",
+	"version": "0.1.0",
 	"minAppVersion": "1.0.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
+	"description": "Plugin for Obsidian to execute commands and insert content inline",
+	"author": "simon-th",
+	"authorUrl": "https://github.com/simon-th",
+	"fundingUrl": "https://github.com/sponsors/simon-th",
 	"isDesktopOnly": false
 }
