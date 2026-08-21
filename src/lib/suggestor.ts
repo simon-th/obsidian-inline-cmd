@@ -20,8 +20,8 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 		this.limit = 20;
 		this.setInstructions([
 			{
-				command: 's;prefix;query',
-				purpose: 'to search and insert block references',
+				command: 'type commands to see suggestions',
+				purpose: '',
 			},
 		]);
 	}

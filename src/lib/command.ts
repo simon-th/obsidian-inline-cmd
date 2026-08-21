@@ -7,3 +7,13 @@ export type CmdRunner = (
 ) => string;
 
 export const noop: CmdRunner = (context, app, evt) => context.query;
+
+export const debug: CmdRunner = (context, app, evt) => {
+  try {
+    console.log('debugging stuff');
+  } catch (err) {
+    console.error(err);
+  }
+
+  return '';
+}

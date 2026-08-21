@@ -1,18 +1,16 @@
 import { App } from 'obsidian';
-import { Suggestion } from './suggestion.js';
-import { readBlockContents, searchBlocks } from '../util/block.js';
+import { Suggestion } from '../suggestion.js';
+import { readBlockContents, searchBlocks } from '../../util/block.js';
 
 export const searchSuggestions = async (
 	app: App,
-	queryParts: string[],
+	cmd: string,
+	prefix: string,
+	searchQuery: string,
 	limit: number,
 ): Promise<Suggestion[]> => {
-	const prefix = queryParts[1] ?? '';
-	const searchQuery = queryParts[2] ?? '';
-
 	const blocks = searchBlocks(app, prefix, searchQuery);
 
-	const cmd = 's';
 	return await Promise.all(
 		blocks.map(async (blockRef, index) => {
 			const display = blockRef.block.id;

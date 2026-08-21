@@ -1,8 +1,11 @@
 import { App, EditorSuggestContext } from 'obsidian';
 import { CmdRunner, noop } from './command.js';
-import { searchSuggestions } from './search.js';
+import { searchSuggestions } from './commands/search.js';
+import { getPrSuggestions } from './commands/pr.js';
 
 const DEBUG = 'debug';
+const SEARCH = 's';
+const PR = 'pr';
 
 export interface Suggestion {
 	cmd: string;
@@ -26,50 +29,31 @@ const debugSuggestion: Suggestion = {
 	runCmd: noop,
 };
 
-const sampleSuggestion: Suggestion = {
-	cmd: 's',
-	label: 'Sample',
-	description: 'sample description',
-	note: 'sample note',
-	runCmd: noop,
-};
-
-const sampleBareSuggestion: Suggestion = {
-	cmd: 'bare',
-	runCmd: noop,
-};
-
-const sampleMarkdownSuggestion: Suggestion = {
-	cmd: 'md',
-	label: 'Uh Oh',
-	markdown: `
-  ## Some markdown\n
-  - list item **bolded**\n
-  - [ ] checklist
-  `,
-	note: 'path/to/source.md',
-  runCmd: noop,
-};
-
 export const getSuggestions = async (
 	context: EditorSuggestContext,
 	app: App,
-  limit: number,
+	limit: number,
 ): Promise<Suggestion[]> => {
-  const queryParts = context.query?.split(';') ?? [];
+	const queryParts = context.query?.split(';') ?? [];
 
-  const cmd = queryParts[0] ?? '';
-  
-  if (cmd !== '' && DEBUG.startsWith(cmd)) {
-		return [debugSuggestion];
+	const cmd = queryParts[0] ?? '';
+
+	switch (true) {
+    case cmd === '':
+      return [noopSuggestion('')];
+		case DEBUG.startsWith(cmd):
+			return [debugSuggestion];
+		case (queryParts.length > 1 && cmd == SEARCH) || SEARCH.startsWith(cmd):
+      return await searchSuggestions(
+        app,
+				's',
+				queryParts[1] ?? '',
+				queryParts[2] ?? '',
+				limit,
+			);
+    case (queryParts.length > 1 && cmd == PR) || PR.startsWith(cmd):
+      return await getPrSuggestions(app, queryParts, limit);
+		default:
+			return [noopSuggestion(context.query ?? '')];
 	}
-
-	switch(true) {
-    case (cmd !== '' && DEBUG.startsWith(cmd)):
-      return [debugSuggestion];
-    case (cmd === 's'):
-      return await searchSuggestions(app, queryParts, limit);
-    default:
-      return [noopSuggestion(context.query ?? '')];
-  }
 };
