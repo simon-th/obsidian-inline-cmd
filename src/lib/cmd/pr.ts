@@ -1,11 +1,25 @@
 import { App, EditorSuggestContext } from 'obsidian';
 import { Suggestion } from '../suggestion.js';
 import { searchAndReadBlocks } from '../util/block.js';
-import { CmdRunner, noop } from './cmd.js';
+import { CmdDef, CmdRunner } from './cmd.js';
 
 export const PR_CMD = 'pr';
 
 const URL_REGEX = /^.*:\/\/.*$/;
+
+const embedPrRefCmdDef: CmdDef = {
+	label: 'Embed PR ref',
+	syntax: 'pr;{repo}-{pull-request-number}',
+	description: 'embed a reference to a GitHub pull request',
+};
+
+const createPrRefCmdDef: CmdDef = {
+	label: 'Create PR ref',
+	syntax: 'pr;{url};({description})',
+	description: 'create a reference to a GitHub pull request',
+};
+
+export const prCmdDefs: CmdDef[] = [embedPrRefCmdDef, createPrRefCmdDef];
 
 const createPrRef: CmdRunner = (context, app, evt): string => {
 	const queryParts = context.query?.split(';') ?? [];
@@ -46,18 +60,10 @@ const searchPrEmbeddings = async (
 
 export const createPrRefSuggestion: Suggestion = {
 	cmd: PR_CMD,
-	label: 'Create PR ref',
-	description: 'create a block reference to a GitHub PR',
+	label: createPrRefCmdDef.label,
+	description: createPrRefCmdDef.description,
 	note: 'pr;url;desc',
 	runCmd: createPrRef,
-};
-
-export const embedPrRefSuggestion: Suggestion = {
-	cmd: PR_CMD,
-	label: 'Embed PR ref',
-	description: 'embed a block reference to a GitHub PR (no-op)',
-	note: 'pr;reference',
-	runCmd: noop,
 };
 
 export const getPrSuggestions = async (
@@ -67,7 +73,7 @@ export const getPrSuggestions = async (
 	limit: number,
 ): Promise<Suggestion[]> => {
 	if (!queryParts[1]) {
-		return [createPrRefSuggestion, embedPrRefSuggestion];
+		return [createPrRefSuggestion];
 	} else if (URL_REGEX.test(queryParts[1])) {
 		return [createPrRefSuggestion];
 	} else {

@@ -1,8 +1,17 @@
 import { App, EditorSuggestContext } from 'obsidian';
 import { Suggestion } from '../suggestion.js';
 import { searchAndReadBlocks } from '../util/block.js';
+import { CmdDef } from './cmd.js';
 
 export const EMBED_CMD = 'e';
+
+const embedBlockCmdDef: CmdDef = {
+	label: 'Embed block',
+	syntax: 'e;{block-id}',
+	description: 'embed any block into your note with a block ID',
+};
+
+export const embedCmdDefs: CmdDef[] = [embedBlockCmdDef];
 
 export const searchEmbeddings = async (
 	app: App,
