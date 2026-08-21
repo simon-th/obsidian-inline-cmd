@@ -5,6 +5,7 @@ import { readBlockContents, searchBlocks } from '../../util/block.js';
 export interface SearchBlockResult {
 	path: string;
 	blockId: string;
+	source: string;
 	markdown?: string;
 }
 
@@ -31,6 +32,7 @@ export const searchAndReadBlocks = async (
 			return {
 				path: blockRef.path,
 				blockId: blockRef.block.id,
+				source: `${blockRef.path} > ${blockRef.block.id}`,
 				markdown,
 			};
 		}),
@@ -45,9 +47,10 @@ export const searchSuggestions = async (
 	limit: number,
 ): Promise<Suggestion[]> => {
 	const blocks = await searchAndReadBlocks(app, prefix, searchQuery, limit);
-	return blocks.map(({ path, blockId, markdown }) => ({
+	return blocks.map(({ path, blockId, markdown, source }) => ({
 		cmd,
 		markdown,
+		note: source,
 		runCmd: () => `[[${path}#^${blockId}|${blockId}]]`,
 	}));
 };

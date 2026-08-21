@@ -28,7 +28,7 @@ const searchPrRefs = async (
 	limit: number,
 ): Promise<Suggestion[]> => {
 	const blocks = await searchAndReadBlocks(app, 'pr-', queryRef, limit);
-	return blocks.map(({ path, blockId, markdown }) => {
+	return blocks.map(({ path, blockId, source, markdown }) => {
     const blockIdSplit = blockId.split('-');
 
     const prNumber = blockIdSplit[blockIdSplit.length - 1];
@@ -37,6 +37,7 @@ const searchPrRefs = async (
 		return {
 			cmd: 'pr',
 			markdown,
+      note: source,
 			runCmd: () => `[[${path}#^${blockId}|${repo}#${prNumber}]]`,
 		};
 	});
