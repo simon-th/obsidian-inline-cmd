@@ -2,15 +2,19 @@ import { App } from 'obsidian';
 import { Suggestion } from '../suggestion.js';
 import { readBlockContents, searchBlocks } from '../../util/block.js';
 
-export const searchSuggestions = async (
+export interface SearchBlockResult {
+	path: string;
+	blockId: string;
+	markdown?: string;
+}
+
+export const searchAndReadBlocks = async (
 	app: App,
-	cmd: string,
 	prefix: string,
 	searchQuery: string,
 	limit: number,
-): Promise<Suggestion[]> => {
+): Promise<SearchBlockResult[]> => {
 	const blocks = searchBlocks(app, prefix, searchQuery);
-
 	return await Promise.all(
 		blocks.map(async (blockRef, index) => {
 			const display = blockRef.block.id;
@@ -25,11 +29,25 @@ export const searchSuggestions = async (
 					: undefined;
 
 			return {
-				cmd,
+				path: blockRef.path,
+				blockId: blockRef.block.id,
 				markdown,
-        runCmd: () => `[[${blockRef.path}#^${blockRef.block.id}|${display}]]`,
-        note: `${blockRef.path} > ${blockRef.block.id}`
 			};
 		}),
 	);
+};
+
+export const searchSuggestions = async (
+	app: App,
+	cmd: string,
+	prefix: string,
+	searchQuery: string,
+	limit: number,
+): Promise<Suggestion[]> => {
+	const blocks = await searchAndReadBlocks(app, prefix, searchQuery, limit);
+	return blocks.map(({ path, blockId, markdown }) => ({
+		cmd,
+		markdown,
+		runCmd: () => `[[${path}#^${blockId}|${blockId}]]`,
+	}));
 };

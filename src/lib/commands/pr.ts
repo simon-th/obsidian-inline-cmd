@@ -2,7 +2,7 @@ import { App } from 'obsidian';
 import { Suggestion } from '../suggestion.js';
 import { CmdRunner } from '../command.js';
 import { searchBlocks } from '../../util/block.js';
-import { searchSuggestions } from './search.js';
+import { searchAndReadBlocks, searchSuggestions } from './search.js';
 
 const URL_REGEX = /^.*:\/\/.*$/;
 
@@ -26,8 +26,21 @@ const searchPrRefs = async (
 	app: App,
 	queryRef: string,
 	limit: number,
-): Promise<Suggestion[]> =>
-	searchSuggestions(app, 'pr', 'pr-', queryRef, limit);
+): Promise<Suggestion[]> => {
+	const blocks = await searchAndReadBlocks(app, 'pr-', queryRef, limit);
+	return blocks.map(({ path, blockId, markdown }) => {
+    const blockIdSplit = blockId.split('-');
+
+    const prNumber = blockIdSplit[blockIdSplit.length - 1];
+    const repo = blockIdSplit.slice(1, blockIdSplit.length - 1).join('-');
+
+		return {
+			cmd: 'pr',
+			markdown,
+			runCmd: () => `[[${path}#^${blockId}|${repo}#${prNumber}]]`,
+		};
+	});
+};
 
 export const createPrRefSuggestion: Suggestion = {
 	cmd: 'pr',
