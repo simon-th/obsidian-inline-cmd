@@ -1,10 +1,12 @@
 import {
 	App,
+	Component,
 	Editor,
 	EditorPosition,
 	EditorSuggest,
 	EditorSuggestContext,
 	EditorSuggestTriggerInfo,
+	MarkdownRenderer,
 	TFile,
 } from 'obsidian';
 import { getSuggestions, Suggestion } from './suggestion.js';
@@ -15,13 +17,13 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 	constructor(app: App, triggerPhrase: string) {
 		super(app);
 		this.triggerPhrase = triggerPhrase;
-    this.limit = 20;
-    this.setInstructions([
-      {
-        command: 'Esc',
-        purpose: 'cancel suggestions'
-      }
-    ])
+		this.limit = 20;
+		this.setInstructions([
+			{
+				command: 'Esc',
+				purpose: 'cancel suggestions',
+			},
+		]);
 	}
 
 	onTrigger(
@@ -65,12 +67,64 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 	}
 
 	renderSuggestion(value: Suggestion, el: HTMLElement): void {
-		el.setText(value.label ?? value.cmd);
+		el.classList.add('mod-complex');
+
+		const contentEl = el.createDiv();
+		contentEl.classList.add('suggestion-content');
+
+		const titleEl = contentEl.createDiv();
+		titleEl.classList.add('suggestion-title');
+
+		if (value.markdown) {
+			this.renderMarkdown(value.markdown, titleEl);
+		} else {
+			this.renderStandard(value, titleEl);
+		}
+
+		if (value.note) {
+			const noteEl = contentEl.createDiv();
+			noteEl.classList.add('suggestion-note');
+			noteEl.setText(value.note);
+		}
+	}
+
+	private renderMarkdown(markdown: string, el: HTMLElement): void {
+		const lifecycleComponent = new Component();
+
+		lifecycleComponent.onload = () => {
+			MarkdownRenderer.render(
+				this.app,
+				markdown,
+				el,
+				this.context?.file?.path ?? '',
+				lifecycleComponent,
+			);
+
+			el.style.whiteSpace = 'normal';
+			el.querySelectorAll('ol, ul').forEach((listEl) => {
+				(listEl as HTMLElement).style.paddingLeft = 'var(--size-4-6)';
+			});
+		};
+
+		lifecycleComponent.load();
+		lifecycleComponent.unload();
+	}
+
+	private renderStandard(value: Suggestion, el: HTMLElement): void {
+		const labelEl = el.createSpan();
+		labelEl.setText(value.label ?? value.cmd);
+		labelEl.style.fontWeight = 'bold';
+
+		if (value.description) {
+			const descEl = el.createSpan();
+			descEl.setText(` ${value.description}`);
+			descEl.style.fontStyle = 'italic';
+		}
 	}
 
 	selectSuggestion(value: Suggestion, evt: MouseEvent | KeyboardEvent): void {
 		const cmdOutput = this.context
-			? value.cmdRunner(this.context, this.app, evt)
+			? value.runCmd(this.context, this.app, evt)
 			: '';
 
 		this.context?.editor?.replaceRange(
