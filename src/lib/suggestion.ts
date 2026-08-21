@@ -1,5 +1,10 @@
 import { App, EditorSuggestContext } from 'obsidian';
-import { CmdRunner, noop, DEBUG_CMD } from './cmd/cmd.js';
+import {
+	CmdRunner,
+	DEBUG_CMD,
+	debugSuggestion,
+	noopSuggestion,
+} from './cmd/cmd.js';
 import { EMBED_CMD, getEmbedSuggestions } from './cmd/embed.js';
 import { PR_CMD, getPrSuggestions } from './cmd/pr.js';
 
@@ -12,17 +17,50 @@ export interface Suggestion {
 	runCmd: CmdRunner;
 }
 
-const noopSuggestion = (query: string) => ({
-	cmd: '',
-	label: `\u23ce`,
-	description: query,
-	runCmd: noop,
-});
+type CmdRef = typeof DEBUG_CMD | typeof EMBED_CMD | typeof PR_CMD;
 
-const debugSuggestion: Suggestion = {
-	cmd: 'debug',
-	label: '\u23ce',
-	runCmd: noop,
+const cmdPriorityList: CmdRef[] = [DEBUG_CMD, EMBED_CMD, PR_CMD];
+
+type CmdSuggestionsGetter = (
+	app: App,
+	context: EditorSuggestContext,
+	queryParts: string[],
+	limit: number,
+) => Promise<Suggestion[]> | Suggestion[];
+
+const suggestionsByCommand: Record<CmdRef, CmdSuggestionsGetter> = {
+	[DEBUG_CMD]: () => [debugSuggestion],
+	[PR_CMD]: (app, context, queryParts, limit) =>
+		getPrSuggestions(app, context, queryParts, limit),
+	[EMBED_CMD]: (app, context, queryParts, limit) =>
+		getEmbedSuggestions(app, context, queryParts, limit),
+};
+
+const allCommands: string = [
+	'```',
+	'Syntax: cmd;arg1;arg2;...',
+	'',
+	'unwrapped text is explicit',
+	'{} wraps placeholders',
+	'() wraps optional args',
+	'',
+	'e;{block-id} : Embed any block ID reference',
+	'pr;{repo}-{pr-number} : Embed PR block reference',
+	'pr;<url>;(desc) : Create block reference for a PR',
+	'```',
+	'',
+	'',
+].join('\n');
+
+const defaultSuggestions = (query: string): Suggestion[] => {
+	return [
+		noopSuggestion(query),
+		{
+			description: 'paste all available commands',
+			cmd: '',
+			runCmd: () => allCommands,
+		},
+	];
 };
 
 export const getSuggestions = async (
@@ -31,20 +69,26 @@ export const getSuggestions = async (
 	limit: number,
 ): Promise<Suggestion[]> => {
 	const queryParts = context.query?.split(';') ?? [];
-
 	const cmd = queryParts[0] ?? '';
 
-	switch (true) {
-		case cmd === '':
-			return [noopSuggestion('')];
-		case DEBUG_CMD.startsWith(cmd):
-			return [debugSuggestion];
-		case (queryParts.length > 1 && cmd == EMBED_CMD) ||
-			EMBED_CMD.startsWith(cmd):
-			return await getEmbedSuggestions(app, queryParts, limit);
-		case (queryParts.length > 1 && cmd == PR_CMD) || PR_CMD.startsWith(cmd):
-			return await getPrSuggestions(app, queryParts, limit);
-		default:
-			return [noopSuggestion(context.query ?? '')];
+	if (cmd === '') {
+		return defaultSuggestions('');
 	}
+
+	for (let i = 0; i < cmdPriorityList.length; i++) {
+		const cmdRef = cmdPriorityList[i];
+		if (
+			(queryParts.length > 1 && cmdRef === cmd) ||
+			cmdRef?.startsWith(cmd)
+		) {
+			return suggestionsByCommand[cmdRef](
+				app,
+				context,
+				queryParts,
+				limit,
+			);
+		}
+	}
+
+	return defaultSuggestions(context.query ?? '');
 };

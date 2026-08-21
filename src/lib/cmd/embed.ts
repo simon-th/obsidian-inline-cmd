@@ -1,4 +1,4 @@
-import { App } from 'obsidian';
+import { App, EditorSuggestContext } from 'obsidian';
 import { Suggestion } from '../suggestion.js';
 import { searchAndReadBlocks } from '../util/block.js';
 
@@ -22,6 +22,7 @@ export const searchEmbeddings = async (
 
 export const getEmbedSuggestions = async (
 	app: App,
+	context: EditorSuggestContext,
 	queryParts: string[],
 	limit: number,
 ): Promise<Suggestion[]> =>
