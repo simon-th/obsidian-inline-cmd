@@ -2,11 +2,11 @@ import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import InlineCmd from './main.js';
 
 export interface InlineCmdSettings {
-	placeholder: boolean;
+	triggerPhrase: string;
 }
 
 export const DEFAULT_SETTINGS: InlineCmdSettings = {
-	placeholder: true
+	triggerPhrase: '%',
 };
 
 export class InlineCmdSettingsTab extends PluginSettingTab {
@@ -23,14 +23,13 @@ export class InlineCmdSettingsTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Placeholder')
-			.setDesc("I'll do something here eventually").addToggle((value) =>
+			.setName('Trigger Phrase')
+			.setDesc("Phrase on the editor that will trigger the command suggestions").addText((value) =>
 				value
-					.setValue(this.plugin.settings.placeholder)
+					.setValue(this.plugin.settings.triggerPhrase)
 					.onChange(async (value) => {
-						this.plugin.settings.placeholder = value;
+						this.plugin.settings.triggerPhrase = value;
 						await this.plugin.saveSettings();
-						new Notice('woohoo!');
 					}),
 			);
 	}

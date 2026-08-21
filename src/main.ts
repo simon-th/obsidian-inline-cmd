@@ -5,17 +5,20 @@ import {
 	Modal,
 	Notice,
 	Plugin,
+	EditorSuggest,
 } from 'obsidian';
 import {
 	DEFAULT_SETTINGS,
 	InlineCmdSettings,
 	InlineCmdSettingsTab,
 } from './settings.js';
+import { Suggestor } from './lib/suggestor.js';
 
 // Remember to rename these classes and interfaces!
 
 export default class InlineCmd extends Plugin {
 	settings!: InlineCmdSettings;
+	suggestor!: Suggestor;
 
 	async onload() {
 		await this.loadSettings();
@@ -26,6 +29,8 @@ export default class InlineCmd extends Plugin {
 		this.registerInterval(
 			window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000),
 		);
+
+		this.registerEditorSuggest(this.suggestor)
 	}
 
 	onunload() {}
@@ -36,6 +41,8 @@ export default class InlineCmd extends Plugin {
 			DEFAULT_SETTINGS,
 			(await this.loadData()) as Partial<InlineCmdSettings>,
 		);
+
+		this.suggestor = new Suggestor(this.app, this.settings.triggerPhrase);
 	}
 
 	async saveSettings() {
