@@ -20,8 +20,8 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 		this.limit = 20;
 		this.setInstructions([
 			{
-				command: 'Esc',
-				purpose: 'cancel suggestions',
+				command: 's;prefix;query',
+				purpose: 'to search and insert block references',
 			},
 		]);
 	}
@@ -63,7 +63,7 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 	getSuggestions(
 		context: EditorSuggestContext,
 	): Suggestion[] | Promise<Suggestion[]> {
-		return getSuggestions(context, this.app);
+		return getSuggestions(context, this.app, this.limit);
 	}
 
 	renderSuggestion(value: Suggestion, el: HTMLElement): void {
@@ -104,6 +104,13 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 			el.querySelectorAll('ol, ul').forEach((listEl) => {
 				(listEl as HTMLElement).style.paddingLeft = 'var(--size-4-6)';
 			});
+
+      const childEl = el.children[0];
+
+      if (childEl instanceof HTMLElement) {
+        childEl.style.marginTop = '12px';
+        childEl.style.marginBottom = '12px';
+      }
 		};
 
 		lifecycleComponent.load();

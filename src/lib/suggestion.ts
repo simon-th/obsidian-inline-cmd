@@ -1,5 +1,6 @@
 import { App, EditorSuggestContext } from 'obsidian';
 import { CmdRunner, noop } from './command.js';
+import { searchSuggestions } from './search.js';
 
 const DEBUG = 'debug';
 
@@ -50,17 +51,25 @@ const sampleMarkdownSuggestion: Suggestion = {
   runCmd: noop,
 };
 
-export const getSuggestions = (
+export const getSuggestions = async (
 	context: EditorSuggestContext,
 	app: App,
-): Suggestion[] => {
-	if (context.query != '' && DEBUG.startsWith(context.query)) {
+  limit: number,
+): Promise<Suggestion[]> => {
+  const queryParts = context.query?.split(';') ?? [];
+
+  const cmd = queryParts[0] ?? '';
+  
+  if (cmd !== '' && DEBUG.startsWith(cmd)) {
 		return [debugSuggestion];
 	}
-	return [
-		noopSuggestion(context.query ?? ''),
-		sampleBareSuggestion,
-		sampleMarkdownSuggestion,
-		sampleSuggestion,
-	];
+
+	switch(true) {
+    case (cmd !== '' && DEBUG.startsWith(cmd)):
+      return [debugSuggestion];
+    case (cmd === 's'):
+      return await searchSuggestions(app, queryParts, limit);
+    default:
+      return [noopSuggestion(context.query ?? '')];
+  }
 };
