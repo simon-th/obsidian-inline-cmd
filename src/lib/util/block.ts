@@ -5,6 +5,41 @@ export interface BlockRef {
 	block: BlockCache;
 }
 
+export interface SearchBlockResult {
+	path: string;
+	blockId: string;
+	source: string;
+	markdown?: string;
+}
+
+export const searchAndReadBlocks = async (
+	app: App,
+	prefix: string,
+	searchQuery: string,
+	limit: number,
+): Promise<SearchBlockResult[]> => {
+	const blocks = searchBlocks(app, prefix, searchQuery);
+	return await Promise.all(
+		blocks.map(async (blockRef, index) => {
+			const markdown =
+				index < limit
+					? await readBlockContents(
+							app,
+							blockRef.path,
+							blockRef.block,
+						)
+					: undefined;
+
+			return {
+				path: blockRef.path,
+				blockId: blockRef.block.id,
+				source: `${blockRef.path} > ${blockRef.block.id}`,
+				markdown,
+			};
+		}),
+	);
+};
+
 export const searchBlocks = (
 	app: App,
 	prefix: string,

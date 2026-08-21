@@ -1,11 +1,7 @@
 import { App, EditorSuggestContext } from 'obsidian';
-import { CmdRunner, noop } from './command.js';
-import { searchSuggestions } from './commands/search.js';
-import { getPrSuggestions } from './commands/pr.js';
-
-const DEBUG = 'debug';
-const SEARCH = 's';
-const PR = 'pr';
+import { CmdRunner, noop, DEBUG_CMD } from './cmd/cmd.js';
+import { EMBED_CMD, getEmbedSuggestions } from './cmd/embed.js';
+import { PR_CMD, getPrSuggestions } from './cmd/pr.js';
 
 export interface Suggestion {
 	cmd: string;
@@ -39,20 +35,15 @@ export const getSuggestions = async (
 	const cmd = queryParts[0] ?? '';
 
 	switch (true) {
-    case cmd === '':
-      return [noopSuggestion('')];
-		case DEBUG.startsWith(cmd):
+		case cmd === '':
+			return [noopSuggestion('')];
+		case DEBUG_CMD.startsWith(cmd):
 			return [debugSuggestion];
-		case (queryParts.length > 1 && cmd == SEARCH) || SEARCH.startsWith(cmd):
-      return await searchSuggestions(
-        app,
-				's',
-				queryParts[1] ?? '',
-				queryParts[2] ?? '',
-				limit,
-			);
-    case (queryParts.length > 1 && cmd == PR) || PR.startsWith(cmd):
-      return await getPrSuggestions(app, queryParts, limit);
+		case (queryParts.length > 1 && cmd == EMBED_CMD) ||
+			EMBED_CMD.startsWith(cmd):
+			return await getEmbedSuggestions(app, queryParts, limit);
+		case (queryParts.length > 1 && cmd == PR_CMD) || PR_CMD.startsWith(cmd):
+			return await getPrSuggestions(app, queryParts, limit);
 		default:
 			return [noopSuggestion(context.query ?? '')];
 	}

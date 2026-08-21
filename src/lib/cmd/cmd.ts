@@ -1,5 +1,7 @@
 import { App, EditorSuggestContext } from "obsidian";
 
+export const DEBUG_CMD = 'debug';
+
 export type CmdRunner = (
   context: EditorSuggestContext,
   app: App,

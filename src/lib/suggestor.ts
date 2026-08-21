@@ -10,6 +10,7 @@ import {
 	TFile,
 } from 'obsidian';
 import { getSuggestions, Suggestion } from './suggestion.js';
+import { EMBED_CMD } from './cmd/embed.js';
 
 export class Suggestor extends EditorSuggest<Suggestion> {
 	triggerPhrase: string;
@@ -20,8 +21,12 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 		this.limit = 20;
 		this.setInstructions([
 			{
-				command: 'type commands to see suggestions',
-				purpose: '',
+				command: `${EMBED_CMD};id`,
+				purpose: 'embed block refs',
+			},
+			{
+				command: 'Esc',
+				purpose: 'cancel',
 			},
 		]);
 	}
@@ -109,14 +114,14 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 	}
 
 	private renderStandard(value: Suggestion, el: HTMLElement): void {
-		const labelEl = el.createSpan();
+		const labelEl = el.createEl('p');
 		labelEl.setText(value.label ?? value.cmd);
 		labelEl.classList.add('inline-cmd-suggestion-label');
 
 		if (value.description) {
-			const descEl = el.createSpan();
+			const descEl = el.createEl('p');
 			descEl.classList.add('inline-cmd-suggestion-desc');
-			descEl.setText(` ${value.description}`);
+			descEl.setText(value.description);
 		}
 	}
 

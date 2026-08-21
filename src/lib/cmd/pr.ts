@@ -1,7 +1,9 @@
 import { App } from 'obsidian';
 import { Suggestion } from '../suggestion.js';
-import { CmdRunner } from '../command.js';
-import { searchAndReadBlocks } from './search.js';
+import { searchAndReadBlocks } from '../util/block.js';
+import { CmdRunner, noop } from './cmd.js';
+
+export const PR_CMD = 'pr';
 
 const URL_REGEX = /^.*:\/\/.*$/;
 
@@ -21,41 +23,41 @@ const createPrRef: CmdRunner = (context, app, evt): string => {
 	return `${link}${desc} ${block}`;
 };
 
-const searchPrRefs = async (
+const searchPrEmbeddings = async (
 	app: App,
 	queryRef: string,
 	limit: number,
 ): Promise<Suggestion[]> => {
 	const blocks = await searchAndReadBlocks(app, 'pr-', queryRef, limit);
 	return blocks.map(({ path, blockId, source, markdown }) => {
-    const blockIdSplit = blockId.split('-');
+		const blockIdSplit = blockId.split('-');
 
-    const prNumber = blockIdSplit[blockIdSplit.length - 1];
-    const repo = blockIdSplit.slice(1, blockIdSplit.length - 1).join('-');
+		const prNumber = blockIdSplit[blockIdSplit.length - 1];
+		const repo = blockIdSplit.slice(1, blockIdSplit.length - 1).join('-');
 
 		return {
-			cmd: 'pr',
+			cmd: PR_CMD,
 			markdown,
-      note: source,
-			runCmd: () => `[[${path}#^${blockId}|${repo}#${prNumber}]]`,
+			note: source,
+			runCmd: () => `![[${path}#^${blockId}|${repo}#${prNumber}]]`,
 		};
 	});
 };
 
 export const createPrRefSuggestion: Suggestion = {
-	cmd: 'pr',
+	cmd: PR_CMD,
 	label: 'Create PR ref',
-	description: 'create block reference to a GitHub pull request',
+	description: 'create a block reference to a GitHub PR',
 	note: 'pr;url;desc',
 	runCmd: createPrRef,
 };
 
-export const searchPrSuggestion: Suggestion = {
-	cmd: 'pr',
-	label: 'Search PR ref',
-	description: 'search for block references to GitHub pull requests',
+export const embedPrRefSuggestion: Suggestion = {
+	cmd: PR_CMD,
+	label: 'Embed PR ref',
+	description: 'embed a block reference to a GitHub PR (no-op)',
 	note: 'pr;reference',
-	runCmd: () => 'Type pr;reference after `%`to search for PR references',
+	runCmd: noop,
 };
 
 export const getPrSuggestions = async (
@@ -64,10 +66,10 @@ export const getPrSuggestions = async (
 	limit: number,
 ): Promise<Suggestion[]> => {
 	if (!queryParts[1]) {
-		return [createPrRefSuggestion, searchPrSuggestion];
+		return [createPrRefSuggestion, embedPrRefSuggestion];
 	} else if (URL_REGEX.test(queryParts[1])) {
 		return [createPrRefSuggestion];
 	} else {
-		return await searchPrRefs(app, queryParts[1], limit);
+		return await searchPrEmbeddings(app, queryParts[1], limit);
 	}
 };
