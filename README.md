@@ -1,51 +1,98 @@
-# Obsidian Sample Plugin
+# Inline Commands
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+This is a plugin for Obsidian (https://obsidian.md) to insert text into your note by running commands inline.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+# Usage
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
+Type `%` anywhere in your note to activate a suggestion dropdown with available commands based on what you have typed. By default, the suggestions will be:
+- **No-op command**: Keeps whatever you have typed after `%`
+- **Paste all available commands:** Pastes a code block in your note to show what commands you can use
 
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and outputs a Notice on click.
-- Registers a global interval which logs 'setInterval' to the console.
+![363](images/default-suggestions.png)
 
-## First time developing plugins?
+The default release comes with the following available commands (as output when paste all available commands is selected):
 
-Quick starting guide for new plugin devs:
+```
+Syntax: cmd;arg1;arg2;...
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `src/main.ts` to `main.js`.
-- Make changes to `src/main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+unwrapped text is explicit
+{} wraps placeholders
+() wraps optional args
 
-## Releasing new releases
+e;{block-id}
+- embed any block into your note with a block ID
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+pr;{repo}-{pull-request-number}
+- embed a reference to a GitHub pull request
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+pr;{url};({description})
+- create a reference to a GitHub pull request
 
-## Adding your plugin to the community plugin list
+```
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+# Example: Creating and embedding a PR reference
 
-## How to use
+Two of the default commands included with the plugin are to create and embed [block references](https://obsidian.md/help/links#Link+to+a+block+in+a+note) for GitHub pull requests anywhere in your notes. These two commands were the main motivation for me to create this plugin as they feel natural to how I take notes for myself. I wanted a way to quickly paste a URL in my daily note, have it automatically be prettified, and then be able to embed that reference in my later daily notes.
+
+To create a reference to a pull request, I'd type the following into my note:
+
+> %pr;https://github.com/obsidianmd/obsidian-sample-plugin/pull/127;update TS version
+
+The plugin will show the corresponding suggestion:
+
+![](images/create-pr-example.png)
+
+When I press enter, the plugin will paste the output of the command directly into my note:
+
+> \[\*\*obsidian-sample-plugin#127**]\(https://github.com/obsidianmd/obsidian-sample-plugin/pull/127) update TS version \^pr-obsidian-sample-plugin-127
+
+Which renders as:
+
+> [**obsidian-sample-plugin#127**](https://github.com/obsidianmd/obsidian-sample-plugin/pull/127) update TS version ^pr-obsidian-sample-plugin-127
+
+Then, to embed that pull request reference into my note, I'd type:
+
+> %pr;o
+
+And it'll search my vault for PR references that include with `o`, display the markdown, and show the source of the block reference:
+
+> ![](images/embed-pr-example-o.png)
+
+Similarly, I could type `sam`, `plugin` or `127` and they'd all include the reference as a suggestion:
+
+> ![456](images/embed-pr-example-sam.png)
+> ![461](images/embed-pr-example-plugin.png)
+> ![464](images/embed-pr-example-127.png)
+
+When I select the suggestion, it'll insert the following markdown into my note:
+
+!\[\[path-to-my-note/README.md#^pr-obsidian-sample-plugin-127|obsidian-sample-plugin#127]]
+
+Which looks like:
+
+> ![](images/embedded-pr-example.png)
+
+As I use the [Minimal theme](https://community.obsidian.md/themes/minimal) that allows me to paste clean embeds, my notes for any given PR look seamless across all my daily notes, but I only have to keep it updated in one place.
+
+# Future versions
+
+## Addressing feedback!
+
+If people use this and have feedback, I'm happy to listen and potentially improve/update/change parts of the plugin.
+
+## Customizable commands
+
+I intend to create a friendly UX for users to create and maintain their own inline commands and shortcuts. It's not really a novel concept, notable examples are the default `Insert table` command and [natural language dates](https://publish.obsidian.md/hub/02+-+Community+Expansions/02.05+All+Community+Expansions/Plugins/nldates-obsidian). Using a deterministic `cmd;arg1;arg2;...` pattern makes this a bit more customizable for a variety of use cases, so I hope this will be of use for people with different note-taking needs and habits.
+
+## Import/export commands
+
+Along the same lines as above, I think it would be nice to be able to import and export commands so that the useful ones can be shared.
+
+## New default commands
+
+As running commands involves executing somewhat opaque backend code, I think keeping the plugin minimal is best and I don't plan to add new default commands.
+
+# How to use
 
 - Clone this repo.
 - Make sure your NodeJS is at least v18 (`node --version`).
@@ -54,39 +101,8 @@ Quick starting guide for new plugin devs:
 
 ## Manually installing the plugin
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint
-
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code.
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-	"fundingUrl": "https://buymeacoffee.com"
-}
-```
-
-If you have multiple URLs, you can also do:
-
-```json
-{
-	"fundingUrl": {
-		"Buy Me a Coffee": "https://buymeacoffee.com",
-		"GitHub Sponsor": "https://github.com/sponsors",
-		"Patreon": "https://www.patreon.com/"
-	}
-}
-```
-
-## API Documentation
-
-See https://docs.obsidian.md
+- Clone this repo.
+- Make sure your NodeJS is at least v18 (`node --version`).
+- `npm i`.
+- `npm run build`.
+- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `path-to-vault/.obsidian/plugins/your-plugin-id/`.

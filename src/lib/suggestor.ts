@@ -21,10 +21,6 @@ export class Suggestor extends EditorSuggest<Suggestion> {
 		this.limit = 20;
 		this.setInstructions([
 			{
-				command: `${EMBED_CMD};id`,
-				purpose: 'embed block refs',
-			},
-			{
 				command: 'Esc',
 				purpose: 'cancel',
 			},
