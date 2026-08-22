@@ -2,7 +2,7 @@
 	"name": "obsidian-inline-cmd",
 	"author": "simon-th",
 	"version": "0.1.0",
-	"description": "Plugin for Obsidian to execute commands and insert content inline",
+	"description": "Plugin for Obsidian to execute commands and insert content inline.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
