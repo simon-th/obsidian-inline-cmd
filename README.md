@@ -8,7 +8,7 @@ Type `%` anywhere in your note to activate a suggestion dropdown with available 
 - **No-op command**: Keeps whatever you have typed after `%`
 - **Paste all available commands:** Pastes a code block in your note to show what commands you can use
 
-![363](images/default-suggestions.png)
+> <img src="images/default-suggestions.png" width="360" alt="default-suggestions">
 
 The default release comes with the following available commands (as output when paste all available commands is selected):
 
@@ -40,7 +40,7 @@ To create a reference to a pull request, I'd type the following into my note:
 
 The plugin will show the corresponding suggestion:
 
-![](images/create-pr-example.png)
+> <img src="images/create-pr-example.png" width="480" alt="create-pr-example">
 
 When I press enter, the plugin will paste the output of the command directly into my note:
 
@@ -56,13 +56,16 @@ Then, to embed that pull request reference into my note, I'd type:
 
 And it'll search my vault for PR references that include with `o`, display the markdown, and show the source of the block reference:
 
-> ![](images/embed-pr-example-o.png)
+> <img src="images/embed-pr-example-o.png" width="480" alt="embed-pr-example-o">
 
 Similarly, I could type `sam`, `plugin` or `127` and they'd all include the reference as a suggestion:
 
-> ![456](images/embed-pr-example-sam.png)
-> ![461](images/embed-pr-example-plugin.png)
-> ![464](images/embed-pr-example-127.png)
+> <img src="images/embed-pr-example-sam.png" width="480" alt="embed-pr-example-sam">
+
+> <img src="images/embed-pr-example-plugin.png" width="480" alt="embed-pr-example-plugin">
+	
+> <img src="images/embed-pr-example-127.png" width="480" alt="embed-pr-example-127">
+		
 
 When I select the suggestion, it'll insert the following markdown into my note:
 
@@ -70,7 +73,7 @@ When I select the suggestion, it'll insert the following markdown into my note:
 
 Which looks like:
 
-> ![](images/embedded-pr-example.png)
+> <img src="images/embedded-pr-example.png" width="480" alt="embedded-pr-example">
 
 As I use the [Minimal theme](https://community.obsidian.md/themes/minimal) that allows me to paste clean embeds, my notes for any given PR look seamless across all my daily notes, but I only have to keep it updated in one place.
 
